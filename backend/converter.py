@@ -16,6 +16,15 @@ def convert_markdown_to_docx(md_content: str, template_path: str) -> bytes:
     Returns:
         The converted DOCX file as bytes
     """
+    # Pre-process: Convert task list checkboxes to symbols before Pandoc
+    # This ensures proper rendering in Word
+    md_content = md_content.replace("- [x] ", "- ✓ ")
+    md_content = md_content.replace("- [X] ", "- ✓ ")
+    md_content = md_content.replace("- [ ] ", "- ☐ ")
+    md_content = md_content.replace("* [x] ", "* ✓ ")
+    md_content = md_content.replace("* [X] ", "* ✓ ")
+    md_content = md_content.replace("* [ ] ", "* ☐ ")
+
     yaml_header = """---
 dir: rtl
 lang: he
@@ -32,14 +41,22 @@ mainfont: David
         with open(input_path, "w", encoding="utf-8") as f:
             f.write(full_content)
 
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        filter_path = os.path.join(script_dir, "filters.lua")
+
         cmd = [
             "pandoc",
             f"--reference-doc={template_path}",
-            "-f", "markdown+lists_without_preceding_blankline",
+            "-f", "markdown+lists_without_preceding_blankline+task_lists",
             "-t", "docx",
             input_path,
             "-o", output_path
         ]
+
+        # Add lua filter if it exists
+        if os.path.exists(filter_path):
+            cmd.insert(2, f"--lua-filter={filter_path}")
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
