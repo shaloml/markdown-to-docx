@@ -14,6 +14,10 @@ A web application that converts Markdown files to Word documents (DOCX) with ful
 - **Two Input Methods**:
   - Paste Markdown content directly
   - Upload Markdown files (.md, .markdown, .txt)
+- **Code Syntax Highlighting** - Colored code blocks with LTR direction
+- **Task Lists** - Support for checkbox task lists
+- **Light/Dark Theme** - Toggle between themes with localStorage persistence
+- **Example Content** - Built-in example markdown for testing all features
 - **Docker Ready** - Easy deployment with Docker Compose
 - **Modern UI** - Clean React interface with Tailwind CSS
 
@@ -21,7 +25,7 @@ A web application that converts Markdown files to Word documents (DOCX) with ful
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/markdown-to-docx.git
+git clone https://github.com/shaloml/markdown-to-docx.git
 cd markdown-to-docx
 
 # Start with Docker Compose
@@ -77,6 +81,7 @@ markdown-to-docx/
 ├── backend/
 │   ├── main.py              # FastAPI application
 │   ├── converter.py         # Pandoc conversion logic
+│   ├── filters.lua          # Lua filter for code blocks
 │   ├── requirements.txt     # Python dependencies
 │   └── Dockerfile
 ├── frontend/
