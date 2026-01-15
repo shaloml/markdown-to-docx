@@ -35,7 +35,7 @@ mainfont: David
         cmd = [
             "pandoc",
             f"--reference-doc={template_path}",
-            "-f", "markdown",
+            "-f", "markdown+lists_without_preceding_blankline",
             "-t", "docx",
             input_path,
             "-o", output_path
