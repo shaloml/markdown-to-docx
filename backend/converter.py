@@ -48,15 +48,13 @@ mainfont: David
         cmd = [
             "pandoc",
             f"--reference-doc={template_path}",
+            f"--lua-filter={filter_path}",
             "-f", "markdown+lists_without_preceding_blankline+task_lists",
             "-t", "docx",
+            "--highlight-style=tango",
             input_path,
             "-o", output_path
         ]
-
-        # Add lua filter if it exists
-        if os.path.exists(filter_path):
-            cmd.insert(2, f"--lua-filter={filter_path}")
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
