@@ -86,9 +86,9 @@ markdown-to-docx/
 │   ├── nginx.conf           # Production nginx config
 │   └── Dockerfile
 ├── word-template/           # DOCX templates
-│   ├── TEMPLAE-CLEAR.docx
-│   ├── TEMPLAE-EWAVE.docx
-│   └── TEMPLAE-MACCABI.docx
+│   ├── style-clear.docx
+│   ├── style-blue.docx
+│   └── style-black.docx
 ├── docker-compose.yml
 └── README.md
 ```
@@ -102,7 +102,9 @@ Returns available DOCX templates.
 ```json
 {
   "templates": [
-    {"id": "TEMPLAE-CLEAR", "name": "CLEAR", "filename": "TEMPLAE-CLEAR.docx"}
+    {"id": "style-clear", "name": "Clear", "filename": "style-clear.docx"},
+    {"id": "style-blue", "name": "Blue", "filename": "style-blue.docx"},
+    {"id": "style-black", "name": "Black", "filename": "style-black.docx"}
   ]
 }
 ```
