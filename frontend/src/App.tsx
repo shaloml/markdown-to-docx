@@ -12,6 +12,148 @@ type Theme = 'light' | 'dark'
 // Use /api prefix in production (proxied by nginx), direct URL in development
 const API_URL = import.meta.env.DEV ? 'http://localhost:8000' : '/api'
 
+// Example Markdown content for testing
+const EXAMPLE_MARKDOWN = `# מסמך לדוגמה - בדיקת המרה
+
+## מבוא
+זהו מסמך לדוגמה שנועד לבדוק את כל יכולות ההמרה של המערכת מ-Markdown ל-Word.
+
+## עיצוב טקסט בסיסי
+
+טקסט רגיל עם **טקסט מודגש** ו-*טקסט נטוי* וגם ***שילוב של שניהם***.
+
+ניתן גם להשתמש ב-~~טקסט מחוק~~ ובטקסט עם \`קוד בתוך שורה\`.
+
+## רשימות
+
+### רשימה ממוספרת
+1. פריט ראשון
+2. פריט שני
+3. פריט שלישי
+   1. תת-פריט א'
+   2. תת-פריט ב'
+4. פריט רביעי
+
+### רשימה לא ממוספרת
+- פריט ראשון
+- פריט שני
+- פריט שלישי
+  - תת-פריט
+  - תת-פריט נוסף
+- פריט רביעי
+
+### רשימת משימות
+- [x] משימה שהושלמה
+- [ ] משימה שטרם הושלמה
+- [x] עוד משימה שהושלמה
+
+## כותרות ברמות שונות
+
+### כותרת רמה 3
+תוכן תחת כותרת רמה 3.
+
+#### כותרת רמה 4
+תוכן תחת כותרת רמה 4.
+
+##### כותרת רמה 5
+תוכן תחת כותרת רמה 5.
+
+## ציטוטים
+
+> זהו ציטוט בודד.
+> הוא יכול להמשיך על פני מספר שורות.
+
+> ציטוט עם **עיצוב** בתוכו
+> > וציטוט מקונן בתוכו
+
+## קוד
+
+### בלוק קוד עם הדגשת תחביר
+
+\`\`\`python
+def hello_world():
+    """פונקציה פשוטה בפייתון"""
+    message = "שלום עולם!"
+    print(message)
+    return message
+
+if __name__ == "__main__":
+    hello_world()
+\`\`\`
+
+\`\`\`javascript
+// קוד JavaScript
+function greet(name) {
+    const greeting = \`שלום, \${name}!\`;
+    console.log(greeting);
+    return greeting;
+}
+\`\`\`
+
+## טבלאות
+
+| עמודה א' | עמודה ב' | עמודה ג' |
+|----------|----------|----------|
+| שורה 1   | ערך 1    | נתון 1   |
+| שורה 2   | ערך 2    | נתון 2   |
+| שורה 3   | ערך 3    | נתון 3   |
+
+### טבלה עם יישור
+
+| שמאל | מרכז | ימין |
+|:-----|:----:|-----:|
+| טקסט | טקסט | טקסט |
+| ארוך | קצר  | בינוני |
+
+## קווים מפרידים
+
+תוכן לפני הקו.
+
+---
+
+תוכן אחרי הקו.
+
+## קישורים ותמונות
+
+[קישור לגוגל](https://www.google.com)
+
+[קישור עם כותרת](https://www.example.com "כותרת הקישור")
+
+## טקסט בעברית ו-RTL
+
+זוהי פסקה בעברית שנועדה לבדוק את התמיכה בכיווניות מימין לשמאל (RTL).
+
+המערכת צריכה לטפל נכון בטקסט עברי, כולל:
+- סדר המילים הנכון
+- סימני פיסוק במקום הנכון
+- מספרים כמו 123 ו-456 צריכים להופיע נכון
+
+### שילוב עברית ואנגלית
+
+זוהי פסקה שמשלבת עברית עם English text ומספרים כמו 2024.
+
+## סיכום
+
+מסמך זה מכיל את כל סוגי העיצוב הנפוצים ב-Markdown:
+1. **עיצוב טקסט** - מודגש, נטוי, מחוק
+2. **רשימות** - ממוספרות ולא ממוספרות
+3. **כותרות** - ברמות שונות
+4. **ציטוטים** - רגילים ומקוננים
+5. **קוד** - בשורה ובבלוקים
+6. **טבלאות** - עם יישור שונה
+7. **קישורים** - פנימיים וחיצוניים
+8. **תמיכה ב-RTL** - עברית מלאה
+`
+
+// Generate unique filename
+const generateUniqueFilename = () => {
+  const now = new Date()
+  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, '')
+  const random = Math.random().toString(36).substring(2, 6)
+  return `doc_${date}_${time}_${random}.docx`
+}
+
 function App() {
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
@@ -30,6 +172,12 @@ function App() {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
+  }
+
+  const loadExample = () => {
+    setPastedContent(EXAMPLE_MARKDOWN)
+    setInputMode('paste')
+    setError(null)
   }
 
   useEffect(() => {
@@ -109,11 +257,14 @@ function App() {
       const a = document.createElement('a')
       a.href = url
 
-      // Generate filename
+      // Generate unique filename
       if (inputMode === 'paste') {
-        a.download = 'document.docx'
+        a.download = generateUniqueFilename()
       } else {
-        a.download = file!.name.replace(/\.(md|markdown|txt)$/, '.docx')
+        const baseName = file!.name.replace(/\.(md|markdown|txt)$/, '')
+        const now = new Date()
+        const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '')
+        a.download = `${baseName}_${timestamp}.docx`
       }
 
       document.body.appendChild(a)
@@ -172,19 +323,19 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 h-full">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 flex-1">
 
           {/* Left Panel - Input Area */}
-          <div className="lg:col-span-2 flex flex-col">
+          <div className="lg:col-span-3 flex flex-col min-h-0">
             <div className={`backdrop-blur-md rounded-2xl border p-4 sm:p-6 flex-1 flex flex-col transition-colors duration-300 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/80 border-gray-200 shadow-lg'}`}>
 
               {/* Input Mode Toggle */}
-              <div className={`flex mb-4 sm:mb-6 rounded-xl p-1 ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>
+              <div className={`flex mb-4 rounded-xl p-1 ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>
                 <button
                   onClick={() => setInputMode('paste')}
                   className={`
-                    flex-1 py-2.5 sm:py-3 px-4 rounded-lg text-sm font-medium transition-all
+                    flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all
                     ${inputMode === 'paste'
                       ? 'bg-white text-blue-600 shadow-lg'
                       : isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
@@ -202,7 +353,7 @@ function App() {
                 <button
                   onClick={() => setInputMode('upload')}
                   className={`
-                    flex-1 py-2.5 sm:py-3 px-4 rounded-lg text-sm font-medium transition-all
+                    flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all
                     ${inputMode === 'upload'
                       ? 'bg-white text-blue-600 shadow-lg'
                       : isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
@@ -221,7 +372,7 @@ function App() {
 
               {/* Paste Content Area */}
               {inputMode === 'paste' && (
-                <div className="flex-1 flex flex-col min-h-[300px] sm:min-h-[400px]">
+                <div className="flex-1 flex flex-col min-h-0">
                   <textarea
                     value={pastedContent}
                     onChange={(e) => {
@@ -230,6 +381,7 @@ function App() {
                     }}
                     placeholder="הדבק כאן את תוכן ה-Markdown שלך..."
                     className={`flex-1 w-full px-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none font-mono text-sm ${isDark ? 'bg-slate-900/50 border-white/20 text-white placeholder-white/40' : 'bg-gray-50 border-gray-300 text-gray-800 placeholder-gray-400'}`}
+                    style={{ minHeight: '400px' }}
                     dir="auto"
                   />
                   <div className={`flex justify-between items-center mt-3 text-xs ${isDark ? 'text-white/40' : 'text-gray-400'}`}>
@@ -246,7 +398,7 @@ function App() {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   className={`
-                    flex-1 min-h-[300px] sm:min-h-[400px] border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer
+                    flex-1 border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer
                     ${isDragging
                       ? 'border-blue-400 bg-blue-500/20'
                       : file
@@ -254,6 +406,7 @@ function App() {
                         : isDark ? 'border-white/30 hover:border-blue-400 hover:bg-white/5' : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }
                   `}
+                  style={{ minHeight: '400px' }}
                   onClick={() => document.getElementById('fileInput')?.click()}
                 >
                   <input
@@ -296,11 +449,11 @@ function App() {
           </div>
 
           {/* Right Panel - Controls */}
-          <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col gap-4">
 
             {/* Template Selector Card */}
-            <div className={`backdrop-blur-md rounded-2xl border p-4 sm:p-6 transition-colors duration-300 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/80 border-gray-200 shadow-lg'}`}>
-              <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+            <div className={`backdrop-blur-md rounded-2xl border p-4 transition-colors duration-300 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/80 border-gray-200 shadow-lg'}`}>
+              <h2 className={`text-base font-semibold mb-3 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
                 <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
@@ -312,7 +465,7 @@ function App() {
                     key={template.id}
                     onClick={() => setSelectedTemplate(template.id)}
                     className={`
-                      w-full px-4 py-3 rounded-xl text-right transition-all flex items-center justify-between
+                      w-full px-3 py-2.5 rounded-xl text-right transition-all flex items-center justify-between text-sm
                       ${selectedTemplate === template.id
                         ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
                         : isDark ? 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
@@ -321,7 +474,7 @@ function App() {
                   >
                     <span className="font-medium">{template.name}</span>
                     {selectedTemplate === template.id && (
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -330,10 +483,27 @@ function App() {
               </div>
             </div>
 
+            {/* Example Button */}
+            <button
+              onClick={loadExample}
+              className={`
+                w-full py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2
+                ${isDark
+                  ? 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/20'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                }
+              `}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              טען דוגמה
+            </button>
+
             {/* Error Message */}
             {error && (
-              <div className={`p-4 backdrop-blur-md border rounded-xl text-sm flex items-start gap-3 ${isDark ? 'bg-red-500/20 border-red-500/30 text-red-200' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <div className={`p-3 backdrop-blur-md border rounded-xl text-sm flex items-start gap-2 ${isDark ? 'bg-red-500/20 border-red-500/30 text-red-200' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 {error}
@@ -345,7 +515,7 @@ function App() {
               onClick={handleConvert}
               disabled={!hasContent || !selectedTemplate || isConverting}
               className={`
-                w-full py-4 sm:py-5 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3
+                w-full py-4 rounded-xl font-semibold text-base transition-all flex items-center justify-center gap-3
                 ${!hasContent || !selectedTemplate || isConverting
                   ? isDark ? 'bg-white/10 text-white/30 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 active:scale-[0.98] shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40'
@@ -369,19 +539,12 @@ function App() {
                 </>
               )}
             </button>
-
-            {/* Info Card */}
-            <div className={`backdrop-blur-md rounded-xl border p-4 text-center transition-colors duration-300 ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
-              <p className={`text-xs ${isDark ? 'text-white/40' : 'text-gray-400'}`}>
-                תומך ב-Markdown עם עברית ו-RTL
-              </p>
-            </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className={`border-t py-4 transition-colors duration-300 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/50 border-gray-200'}`}>
+      <footer className={`border-t py-3 transition-colors duration-300 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/50 border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className={`text-center text-xs ${isDark ? 'text-white/30' : 'text-gray-400'}`}>
             המערכת משתמשת ב-Pandoc להמרה מדויקת של Markdown למסמכי Word
