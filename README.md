@@ -20,6 +20,8 @@ A web application that converts Markdown files to Word documents (DOCX) with ful
 - **Example Content** - Built-in example markdown for testing all features
 - **Docker Ready** - Easy deployment with Docker Compose
 - **Modern UI** - Clean React interface with Tailwind CSS
+- **MCP Server** - Use as a tool in Claude Code or other MCP clients
+- **Claude Code Skill** - `/word-rtl` command for quick RTL document creation
 
 ## Quick Start with Docker
 
@@ -94,9 +96,47 @@ markdown-to-docx/
 │   ├── style-clear.docx
 │   ├── style-blue.docx
 │   └── style-black.docx
+├── mcp-server/              # MCP server for Claude Code
+│   ├── server.py            # MCP tools implementation
+│   └── requirements.txt
+├── .claude/skills/          # Claude Code skills
+│   └── word-rtl/
+├── .mcp.json                # MCP server configuration
 ├── docker-compose.yml
 └── README.md
 ```
+
+## Claude Code / MCP Integration
+
+This project includes an MCP (Model Context Protocol) server that exposes the conversion functionality as tools for Claude Code and other MCP-compatible clients.
+
+### Setup
+
+```bash
+# Create virtual environment and install dependencies
+python3 -m venv .venv
+.venv/bin/pip install -r mcp-server/requirements.txt
+
+# Restart Claude Code to load the MCP server
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `list_templates` | List available DOCX templates |
+| `convert_markdown_to_rtl_docx` | Convert markdown content to RTL DOCX |
+| `convert_markdown_file_to_rtl_docx` | Convert a markdown file to RTL DOCX |
+
+### Claude Code Skill
+
+Use the `/word-rtl` skill for guided RTL Word document creation:
+
+```
+/word-rtl
+```
+
+Then ask Claude to convert your markdown content or file.
 
 ## API Endpoints
 
